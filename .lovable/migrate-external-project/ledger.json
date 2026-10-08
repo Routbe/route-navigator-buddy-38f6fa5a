@@ -1,0 +1,83 @@
+{
+  "source": "github:Routbe/route-navigator-buddy-411c2b47",
+  "approach": "code-import-keep-backend",
+  "capabilities": [
+    {
+      "capability": "code",
+      "source": "github",
+      "outcome": "migrate",
+      "status": "in-progress",
+      "next_action": "Copy 792 source files into project; install dependencies; verify build"
+    },
+    {
+      "capability": "schema",
+      "source": "Neon PostgreSQL (db/sql/00-51, 38 idempotent migrations)",
+      "outcome": "preserve-external",
+      "status": "external",
+      "next_action": "User chose to keep the existing Neon database; schema stays as-is on Neon"
+    },
+    {
+      "capability": "records",
+      "source": "Neon PostgreSQL",
+      "outcome": "preserve-external",
+      "status": "external",
+      "next_action": "Data stays in the user's Neon database; no export/import needed"
+    },
+    {
+      "capability": "auth-identities",
+      "source": "Better Auth (passkeys/WebAuthn) on Neon",
+      "outcome": "preserve-external",
+      "status": "external",
+      "next_action": "Kept as-is; requires BETTER_AUTH_SECRET/SESSION_SECRET secrets"
+    },
+    {
+      "capability": "authorization",
+      "source": "Server-side checks in TanStack server functions",
+      "outcome": "preserve",
+      "status": "pending-verification",
+      "next_action": "Verify after secrets are added"
+    },
+    {
+      "capability": "uploaded-file-bytes",
+      "source": "Scaleway Object Storage (S3-compatible)",
+      "outcome": "preserve-external",
+      "status": "external",
+      "next_action": "Requires SCALEWAY_* secrets"
+    },
+    {
+      "capability": "external-providers",
+      "source": "Stripe, Brevo, bunq, Turnstile, Telegram, WhatsApp, OAuth (GitHub/Google/Apple/GitLab/Infomaniak/Bluesky/Mastodon)",
+      "outcome": "preserve-external",
+      "status": "external",
+      "next_action": "All preserved in code; credentials requested via secure secret form"
+    },
+    {
+      "capability": "public-endpoints-webhooks-cron",
+      "source": "src/routes/api/* (OAuth, Stripe webhook, banking webhook, cron routes)",
+      "outcome": "preserve",
+      "status": "pending-verification",
+      "next_action": "Endpoints exist in code; verify reachability after deploy"
+    },
+    {
+      "capability": "secrets",
+      "source": "Existing provider dashboards",
+      "outcome": "request",
+      "status": "pending",
+      "next_action": "Request critical secrets (DATABASE_URL etc.) via secure form"
+    },
+    {
+      "capability": "cutover",
+      "source": "n/a",
+      "outcome": "none",
+      "status": "external",
+      "next_action": "App remains deployed on Vercel; no cutover"
+    },
+    {
+      "capability": "verification",
+      "source": "n/a",
+      "outcome": "verify",
+      "status": "pending",
+      "next_action": "Build check + preview smoke test once secrets are set"
+    }
+  ]
+}
