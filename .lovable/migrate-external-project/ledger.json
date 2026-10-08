@@ -6,64 +6,64 @@
       "capability": "code",
       "source": "github",
       "outcome": "migrate",
-      "status": "in-progress",
-      "next_action": "Copy 792 source files into project; install dependencies; verify build"
+      "status": "verified",
+      "next_action": "None — 812 src files copied, dependencies installed, build OK, homepage renders"
     },
     {
       "capability": "schema",
-      "source": "Neon PostgreSQL (db/sql/00-51, 38 idempotent migrations)",
+      "source": "Neon PostgreSQL (db/sql/00-51)",
       "outcome": "preserve-external",
       "status": "external",
-      "next_action": "User chose to keep the existing Neon database; schema stays as-is on Neon"
+      "next_action": "Kept on Neon per user choice; verified reachable (health check SELECT 1 OK)"
     },
     {
       "capability": "records",
       "source": "Neon PostgreSQL",
       "outcome": "preserve-external",
       "status": "external",
-      "next_action": "Data stays in the user's Neon database; no export/import needed"
+      "next_action": "Data stays in user's Neon database; no export/import needed"
     },
     {
       "capability": "auth-identities",
       "source": "Better Auth (passkeys/WebAuthn) on Neon",
       "outcome": "preserve-external",
-      "status": "external",
-      "next_action": "Kept as-is; requires BETTER_AUTH_SECRET/SESSION_SECRET secrets"
+      "status": "pending-verification",
+      "next_action": "DATABASE_URL, BETTER_AUTH_SECRET, SESSION_SECRET saved; verify a sign-in flow"
     },
     {
       "capability": "authorization",
       "source": "Server-side checks in TanStack server functions",
       "outcome": "preserve",
       "status": "pending-verification",
-      "next_action": "Verify after secrets are added"
+      "next_action": "Verify authenticated areas after sign-in check"
     },
     {
       "capability": "uploaded-file-bytes",
-      "source": "Scaleway Object Storage (S3-compatible)",
+      "source": "Scaleway Object Storage",
       "outcome": "preserve-external",
       "status": "external",
       "next_action": "Requires SCALEWAY_* secrets"
     },
     {
       "capability": "external-providers",
-      "source": "Stripe, Brevo, bunq, Turnstile, Telegram, WhatsApp, OAuth (GitHub/Google/Apple/GitLab/Infomaniak/Bluesky/Mastodon)",
+      "source": "Stripe, Brevo, bunq, Turnstile, Telegram, WhatsApp, OAuth providers",
       "outcome": "preserve-external",
       "status": "external",
-      "next_action": "All preserved in code; credentials requested via secure secret form"
+      "next_action": "All preserved in code; credentials to be requested via secure secret form"
     },
     {
       "capability": "public-endpoints-webhooks-cron",
-      "source": "src/routes/api/* (OAuth, Stripe webhook, banking webhook, cron routes)",
+      "source": "src/routes/api/*",
       "outcome": "preserve",
       "status": "pending-verification",
-      "next_action": "Endpoints exist in code; verify reachability after deploy"
+      "next_action": "Health endpoint verified; provider webhooks need provider secrets + URLs"
     },
     {
       "capability": "secrets",
       "source": "Existing provider dashboards",
       "outcome": "request",
-      "status": "pending",
-      "next_action": "Request critical secrets (DATABASE_URL etc.) via secure form"
+      "status": "partial",
+      "next_action": "DATABASE_URL, BETTER_AUTH_SECRET, SESSION_SECRET saved; remaining provider keys pending"
     },
     {
       "capability": "cutover",
@@ -76,8 +76,8 @@
       "capability": "verification",
       "source": "n/a",
       "outcome": "verify",
-      "status": "pending",
-      "next_action": "Build check + preview smoke test once secrets are set"
+      "status": "partial",
+      "next_action": "Build OK, homepage renders with no console errors, Neon reachable; sign-in and provider flows pending secrets"
     }
   ]
 }
