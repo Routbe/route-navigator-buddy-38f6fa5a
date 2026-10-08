@@ -41,6 +41,27 @@ function providerNotConfigured(provider: string, missing: string[]) {
   );
 }
 
+/** Non-secret request facts for diagnosing cookie / state / host problems. */
+function traceContext(request: Request, relativePath?: string) {
+  const url = new URL(request.url);
+  const cookieNames = (request.headers.get("cookie") ?? "")
+    .split(";")
+    .map((c) => c.split("=")[0]?.trim())
+    .filter((n): n is string => Boolean(n) && /auth|state|session/i.test(n!));
+  return {
+    method: request.method,
+    path: relativePath ?? url.pathname,
+    hasCode: url.searchParams.has("code"),
+    hasState: url.searchParams.has("state"),
+    providerError: url.searchParams.get("error"),
+    host: request.headers.get("host"),
+    forwardedHost: request.headers.get("x-forwarded-host"),
+    forwardedProto: request.headers.get("x-forwarded-proto"),
+    betterAuthUrl: process.env["BETTER_AUTH_URL"] ?? process.env["NEXT_PUBLIC_APP_URL"] ?? null,
+    authCookies: cookieNames, // names only, never values
+  };
+}
+
 export async function handleAuthRequest({ request }: { request: Request }) {
   try {
     const { createRoutAuth, isProviderConfigured, missingProviderKeys } = await import("@/lib/better-auth.server");
@@ -57,10 +78,25 @@ export async function handleAuthRequest({ request }: { request: Request }) {
       return providerNotConfigured(provider, missingProviderKeys(provider));
     }
 
-    return await createRoutAuth(request).handler(request);
+    const res = await createRoutAuth(request).handler(request);
+    if (/callback/.test(relativePath)) {
+      // Better Auth reports state/cookie problems as a redirect with ?error=.
+      const loc = res.headers.get("location") ?? "";
+      const errParam = loc ? new URL(loc, request.url).searchParams.get("error") : null;
+      if (res.status >= 400 || errParam) {
+        console.error("[auth] OAuth callback rejected:", { status: res.status, error: errParam, ...traceContext(request, relativePath) });
+      }
+    }
+    return res;
   } catch (err) {
     const raw = err instanceof Error ? err.message : String(err);
-    console.error("[auth] handler failed:", err instanceof Error ? err.stack ?? raw : raw);
+    console.error("[auth] handler failed:", {
+      message: raw,
+      name: err instanceof Error ? err.name : typeof err,
+      cause: err instanceof Error && err.cause ? String((err.cause as Error)?.message ?? err.cause) : undefined,
+      stack: err instanceof Error ? err.stack : undefined,
+      ...traceContext(request),
+    });
     const code = /PROVIDER_NOT_FOUND|provider[^\n]*(not found|not configured|not enabled|unknown provider)/i.test(raw)
       ? "provider_not_configured"
       : /SECRET/.test(raw)
