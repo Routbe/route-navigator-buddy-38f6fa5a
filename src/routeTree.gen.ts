@@ -58,6 +58,7 @@ import { Route as ApiPaymentStatusRouteImport } from './routes/api_.payment-stat
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthAuthViewRouteImport } from './routes/auth.$authView'
 import { Route as AuthBlueskyRouteImport } from './routes/auth.bluesky'
+import { Route as AuthContinueRouteImport } from './routes/auth_.continue'
 import { Route as DevEmailsRouteImport } from './routes/dev.emails'
 import { Route as FIdRouteImport } from './routes/f.$id'
 import { Route as GiftCodeRouteImport } from './routes/gift_.$code'
@@ -370,6 +371,11 @@ const AuthBlueskyRoute = AuthBlueskyRouteImport.update({
   id: '/bluesky',
   path: '/bluesky',
   getParentRoute: () => AuthRoute,
+} as any)
+const AuthContinueRoute = AuthContinueRouteImport.update({
+  id: '/auth_/continue',
+  path: '/auth/continue',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DevEmailsRoute = DevEmailsRouteImport.update({
   id: '/dev/emails',
@@ -789,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth/continue': typeof AuthContinueRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift/$code': typeof GiftCodeRoute
@@ -904,6 +911,7 @@ export interface FileRoutesByTo {
   '/api/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth/continue': typeof AuthContinueRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift/$code': typeof GiftCodeRoute
@@ -1021,6 +1029,7 @@ export interface FileRoutesById {
   '/api_/payment-status': typeof ApiPaymentStatusRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/auth/bluesky': typeof AuthBlueskyRoute
+  '/auth_/continue': typeof AuthContinueRoute
   '/dev/emails': typeof DevEmailsRoute
   '/f/$id': typeof FIdRoute
   '/gift_/$code': typeof GiftCodeRoute
@@ -1140,6 +1149,7 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth/continue'
     | '/dev/emails'
     | '/f/$id'
     | '/gift/$code'
@@ -1255,6 +1265,7 @@ export interface FileRouteTypes {
     | '/api/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth/continue'
     | '/dev/emails'
     | '/f/$id'
     | '/gift/$code'
@@ -1371,6 +1382,7 @@ export interface FileRouteTypes {
     | '/api_/payment-status'
     | '/auth/$authView'
     | '/auth/bluesky'
+    | '/auth_/continue'
     | '/dev/emails'
     | '/f/$id'
     | '/gift_/$code'
@@ -1478,6 +1490,7 @@ export interface RootRouteChildren {
   DotwellKnownOpenidConfigurationRoute: typeof DotwellKnownOpenidConfigurationRoute
   AccountAccountViewRoute: typeof AccountAccountViewRoute
   ApiPaymentStatusRoute: typeof ApiPaymentStatusRoute
+  AuthContinueRoute: typeof AuthContinueRoute
   DevEmailsRoute: typeof DevEmailsRoute
   FIdRoute: typeof FIdRoute
   GiftCodeRoute: typeof GiftCodeRoute
@@ -1861,6 +1874,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/bluesky'
       preLoaderRoute: typeof AuthBlueskyRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/auth_/continue': {
+      id: '/auth_/continue'
+      path: '/auth/continue'
+      fullPath: '/auth/continue'
+      preLoaderRoute: typeof AuthContinueRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dev/emails': {
       id: '/dev/emails'
@@ -2567,6 +2587,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOpenidConfigurationRoute: DotwellKnownOpenidConfigurationRoute,
   AccountAccountViewRoute: AccountAccountViewRoute,
   ApiPaymentStatusRoute: ApiPaymentStatusRoute,
+  AuthContinueRoute: AuthContinueRoute,
   DevEmailsRoute: DevEmailsRoute,
   FIdRoute: FIdRoute,
   GiftCodeRoute: GiftCodeRoute,
