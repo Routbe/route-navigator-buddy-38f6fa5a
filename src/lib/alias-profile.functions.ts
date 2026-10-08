@@ -57,7 +57,7 @@ const jsonValueSchema = z.union([
   z.boolean(),
   z.null(),
 ]);
-const jsonRecordSchema = z.record(z.union([jsonValueSchema, z.array(jsonValueSchema).max(100)]));
+const jsonRecordSchema = z.record(z.string(), z.union([jsonValueSchema, z.array(jsonValueSchema).max(100)]));
 const optionalUrlSchema = z
   .string()
   .trim()

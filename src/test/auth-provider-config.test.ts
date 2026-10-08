@@ -62,7 +62,9 @@ describe("auth handler with missing OAuth credentials", () => {
     expect(body.message).toMatch(/niet ingesteld/);
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"github"'));
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("GITHUB_CLIENT_ID"));
-  });
+    // First request in this file pays the cold module-load cost; under a full
+    // suite run that can exceed the default 5s timeout.
+  }, 30_000);
 
   it("refuses generic OAuth (providerId) and OAuth callbacks the same way", async () => {
     clearEnv();
