@@ -69,24 +69,38 @@ function pair(id: string, secret: string) {
   return clientId && clientSecret ? { clientId, clientSecret } : null;
 }
 
-/** Origin the browser is actually using, when it is one we may trust. */
+/** Origin the browser is actually using (proxy-aware: x-forwarded-host/proto). */
 function requestOrigin(request?: Request): string | null {
   if (!request) return null;
   const forwarded = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
   const host = forwarded || request.headers.get("host") || new URL(request.url).host;
   if (!host) return null;
   const local = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
-  return `${local ? "http" : "https"}://${host}`;
+  const fwdProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().toLowerCase();
+  const proto = fwdProto === "http" || fwdProto === "https" ? fwdProto : local ? "http" : "https";
+  // Behind Vercel's proxy the hop may report http; a non-local host is always https.
+  return `${local ? proto : "https"}://${host}`;
 }
 
 /** The base URL OAuth callbacks are built on: configured, else approved host, else canonical. */
 function baseUrlFor(request?: Request): string {
   const configured = env("BETTER_AUTH_URL") ?? env("NEXT_PUBLIC_APP_URL");
-  if (configured) return configured.replace(/\/$/, "");
   const origin = requestOrigin(request);
+  if (configured) {
+    const base = configured.trim().replace(/\/+$/, "").replace(/\/api\/auth$/, "");
+    const normalized = /^https?:\/\//.test(base) ? base : `https://${base}`;
+    if (origin && new URL(origin).host !== new URL(normalized).host) {
+      // State cookie is set on the request host but the provider returns to
+      // BETTER_AUTH_URL's host → cookie missing → state_mismatch.
+      console.warn(`[auth] host mismatch: request=${origin} BETTER_AUTH_URL=${normalized}. OAuth state cookies will not match.`);
+    }
+    return normalized;
+  }
   if (origin && isApprovedHost(new URL(origin).host)) return origin;
   return canonicalAppUrl();
 }
+
+export { baseUrlFor as authBaseUrlFor };
 
 export function createRoutAuth(request?: Request) {
   const connectionString = env("DATABASE_URL");
@@ -194,8 +208,12 @@ export function createRoutAuth(request?: Request) {
       ...(origin ? [origin] : []),
     ],
     advanced: {
+      // Always secure: production is https behind Vercel's proxy even when the
+      // internal hop says http; browsers accept secure cookies on localhost.
       useSecureCookies: true,
+      // lax lets the top-level OAuth redirect back carry the state cookie.
       defaultCookieAttributes: { httpOnly: true, secure: true, sameSite: "lax", path: "/" },
+      ipAddress: { ipAddressHeaders: ["x-forwarded-for", "x-real-ip", "cf-connecting-ip"] },
       database: { generateId: () => crypto.randomUUID() },
     },
     telemetry: { enabled: false },
