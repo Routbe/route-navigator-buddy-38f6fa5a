@@ -223,6 +223,19 @@ const PROVIDER_KEYS: Record<string, string[]> = {
   infomaniak: ["INFOMANIAK_CLIENT_ID", "INFOMANIAK_CLIENT_SECRET"],
 };
 
+/** Is a sign-in provider fully configured? Names only — never values. */
+export function isProviderConfigured(id: string): boolean {
+  const keys = PROVIDER_KEYS[id];
+  if (!keys) return false;
+  return keys.every((k) => Boolean(envAny(k)));
+}
+
+/** Key NAMES a provider still misses — safe for logs and diagnostics. */
+export function missingProviderKeys(id: string): string[] {
+  const keys = PROVIDER_KEYS[id];
+  return keys ? keys.filter((k) => !envAny(k)) : ["*"];
+}
+
 /** Live checks for the deploy: database reachable, email service configured. */
 export async function liveAuthChecks() {
   let database = false;
