@@ -1,3 +1,5 @@
+// Guarded auth endpoint: missing provider credentials fail fast with a readable
+// code instead of a generic 500 (see handleAuthRequest below).
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
